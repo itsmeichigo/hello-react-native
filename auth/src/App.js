@@ -49,7 +49,7 @@ class App extends Component {
   }
 
   render() {
-    return(
+    return (
       <View style={styles.containerstyle}>
         <Header title="Authentication" />
         {this.renderContent()}

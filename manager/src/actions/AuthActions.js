@@ -6,6 +6,7 @@ import {
   LOGIN_USER_SUCCESS,
   LOGIN_USER_FAIL,
   LOGIN_USER,
+  LOGOUT_USER,
 } from './types';
 
 export const emailChanged = (text) => {
@@ -31,13 +32,13 @@ export const loginUser = ({ email, password }) => {
       .catch(() => {
         firebase.auth().createUserWithEmailAndPassword(email, password)
           .then(user => loginUserSuccess(dispatch, user))
-          .catch(() => loginUserFail(dispatch));
+          .catch(() => loginUserFail(dispatch, 'Authentication Failed!'));
       });
   };
 };
 
-const loginUserFail = (dispatch) => {
-  dispatch({ type: LOGIN_USER_FAIL });
+const loginUserFail = (dispatch, message) => {
+  dispatch({ type: LOGIN_USER_FAIL, payload: message });
 };
 
 const loginUserSuccess = (dispatch, user) => {
@@ -47,4 +48,23 @@ const loginUserSuccess = (dispatch, user) => {
   });
 
   Actions.main();
+};
+
+export const loggoutUser = () => {
+  firebase.auth().signOut();
+  Actions.auth({ type: 'reset' });
+  return { type: LOGOUT_USER };
+};
+
+export const checkAuth = () => {
+  return (dispatch) => {
+    dispatch({ type: LOGIN_USER });
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        loginUserSuccess(dispatch, user);
+      } else {
+        loginUserFail(dispatch, '');
+      }
+    });
+  };
 };
