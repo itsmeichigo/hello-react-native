@@ -1,42 +1,58 @@
 import React, { Component } from 'react';
-import { ListView } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux';
 import _ from 'lodash';
 import { employeesFetch } from '../actions';
 import ListItem from './ListItem';
+import { Button } from './common';
 
 class EmployeeList extends Component {
   componentWillMount() {
     this.props.employeesFetch();
-    this.createDataSource(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.createDataSource(nextProps);
+  onAddButtonPress() {
+    Actions.employeeCreate();
   }
 
-  createDataSource({ employees }) {
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    });
-
-    this.dataSource = ds.cloneWithRows(employees);
+  keyExtractor(employee) {
+    return employee.uid;
   }
 
-  renderRow(employee) {
-    return <ListItem employee={employee} />;
+  renderItem(employee) {
+    return <ListItem employee={employee.item} />;
   }
 
   render() {
     return (
-      <ListView
-        enableEmptySections
-        dataSource={this.dataSource}
-        renderRow={this.renderRow}
-      />
+      <View style={styles.containerStyle}>
+        <FlatList
+          data={this.props.employees}
+          renderItem={this.renderItem}
+          keyExtractor={this.keyExtractor}
+        />
+      <View style={styles.footerStyle}>
+          <Button onPress={this.onAddButtonPress.bind(this)}>
+            Add New Employee
+          </Button>
+        </View>
+      </View>
     );
   }
 }
+
+const styles = {
+  containerStyle: {
+    flex: 1,
+    alignContent: 'space-between',
+  },
+  footerStyle: {
+    height: 44,
+    marginBottom: 10,
+    marginTop: 10,
+  },
+};
 
 const mapStateToProps = state => {
   const employees = _.map(state.employees, (val, uid) => {
