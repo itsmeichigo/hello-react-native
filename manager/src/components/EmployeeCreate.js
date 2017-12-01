@@ -5,6 +5,19 @@ import { employeeUpdate, employeeCreate } from '../actions';
 import EmployeeForm from './EmployeeForm';
 
 class EmployeeCreate extends Component {
+  state = { saveEnabled: false };
+
+  componentWillReceiveProps(newProps) {
+    const { name, phone, shift } = newProps;
+    const defined = name && phone && shift;
+    if (defined) {
+      const notEmpty = name.length > 0 && phone.length > 0 && shift.length > 0;
+      this.setState({ saveEnabled: notEmpty });
+    } else {
+      this.setState({ saveEnabled: false });
+    }
+  }
+
   onButtonPress() {
     const { name, phone, shift } = this.props;
     this.props.employeeCreate({ name, phone, shift: shift || 'Monday' });
@@ -15,7 +28,10 @@ class EmployeeCreate extends Component {
       <Card>
         <EmployeeForm />
         <CardSection>
-          <Button onPress={this.onButtonPress.bind(this)}>
+          <Button
+            disabled={!this.state.saveEnabled}
+            onPress={this.onButtonPress.bind(this)}
+          >
             Create
           </Button>
         </CardSection>

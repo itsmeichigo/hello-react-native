@@ -7,12 +7,27 @@ import { employeeUpdate, employeeSave, employeeDelete } from '../actions';
 import EmployeeForm from './EmployeeForm';
 
 class EmployeeEdit extends Component {
-  state = { showModal: false };
+  state = {
+    showModal: false,
+    saveEnabled: false,
+  };
 
   componentWillMount() {
     _.each(this.props.employee, (value, prop) => {
       this.props.employeeUpdate({ prop, value });
     });
+  }
+
+  componentWillReceiveProps(newProps) {
+    const { name, phone, shift } = this.props.employee;
+    const {
+      name: newName,
+      phone: newPhone,
+      shift: newShift
+    } = newProps;
+
+    const saveEnabled = newName !== name || newPhone !== phone || newShift !== shift;
+    this.setState({ saveEnabled });
   }
 
   onButtonPress() {
@@ -39,7 +54,10 @@ class EmployeeEdit extends Component {
         <EmployeeForm />
 
         <CardSection>
-          <Button onPress={this.onButtonPress.bind(this)}>
+          <Button
+            disabled={!this.state.saveEnabled}
+            onPress={this.onButtonPress.bind(this)}
+          >
             Save Changes
           </Button>
         </CardSection>
@@ -51,7 +69,9 @@ class EmployeeEdit extends Component {
         </CardSection>
 
         <CardSection>
-          <Button onPress={() => this.setState({ showModal: true })}>
+          <Button
+            onPress={() => this.setState({ showModal: true })}
+          >
             Fire Employee
           </Button>
         </CardSection>
